@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Convert Barcode to QR</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: linear-gradient(to right, #e0f7fa, #e1bee7);
+    }
+    h1 {
+      color: #6a1b9a;
+    }
+    #qrcode {
+      margin: 30px auto;
+    }
+    .btn-back {
+      background-color: #6a1b9a;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .btn-back:hover {
+      background-color: #4a148c;
+    }
+  </style>
+</head>
+<body>
+  <h1>Barcode to QR Code</h1>
+  <div id="qrcode"></div>
+  <p id="codeText"></p>
+  <button class="btn-back" onclick="history.back()">← Back to Scanner</button>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+
+    if (code) {
+      document.getElementById('codeText').innerText = `Scanned Code: ${code}`;
+      new QRCode(document.getElementById("qrcode"), {
+        text: code,
+        width: 200,
+        height: 200,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+    } else {
+      document.getElementById('codeText').innerText = "No barcode found in URL.";
+    }
+  </script>
+</body>
+</html>

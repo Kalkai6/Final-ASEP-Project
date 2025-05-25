@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Barcode Scanner</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
+      background: linear-gradient(to right, #f4f4f9, #e0e7ff);
+      color: #333;
+      animation: fadeInBody 1s ease-in-out;
+    }
+
+    @keyframes fadeInBody {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      animation: slideDown 1s ease-in-out;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    header img {
+      height: 60px;
+    }
+
+    header h1 {
+      color: #751085;
+      font-size: 28px;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    #scanner-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    #scanner {
+      width: 100%;
+      max-width: 600px;
+      height: auto;
+      border: 2px solid #751085;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      animation: fadeInVideo 1s ease-in;
+    }
+
+    @keyframes fadeInVideo {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      text-align: center;
+      font-weight: 600;
+      animation: fadeInText 0.6s ease-in-out;
+    }
+
+    @keyframes fadeInText {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .btn-stop {
+      display: block;
+      margin: 10px auto;
+      padding: 12px 28px;
+      background-color: #ff6347;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      animation: fadeInButton 1s ease-in-out;
+    }
+
+    .btn-stop:hover {
+      background-color: #e5533e;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(229, 83, 62, 0.4);
+    }
+
+    @keyframes fadeInButton {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .manual-search {
+      margin: 30px auto;
+      text-align: center;
+      animation: fadeInText 1s ease-in-out;
+    }
+
+    .manual-search input {
+      padding: 10px;
+      width: 250px;
+      border: 1px solid #751085;
+      border-radius: 8px;
+      margin-right: 10px;
+      font-size: 16px;
+    }
+
+    .manual-search button {
+      padding: 10px 18px;
+      background-color: #751085;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .manual-search button:hover {
+      background-color: #5e0a6a;
+    }
+
+    #clearHistory {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background-color: #999;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+
+    #clearHistory:hover {
+      background-color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>Barcode Scanner</h1>
+
+  <header>
+    <img src="LOGO.png" alt="VIT Pune Logo">
+    <h1>ASEP Barcode Scanner</h1>
+  </header>
+
+  <div class="manual-search">
+    <input type="text" id="manualQuery" placeholder="Enter barcode or product name">
+    <button onclick="manualSearch()">Search</button>
+  </div>
+
+  <div id="scanner-container">
+    <video id="scanner" autoplay></video>
+  </div>
+
+  <div id="result" class="hidden"></div>
+
+  <button id="stop" class="btn-stop hidden" onclick="stopScanning()">Stop Scanning</button>
+
+  <script>
+    const scannerElement = document.getElementById('scanner');
+    const resultDiv = document.getElementById('result');
+    const stopButton = document.getElementById('stop');
+    let scanning = false;
+
+    function startScanning() {
+      if (scanning) return;
+      scanning = true;
+
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' }
+      }).then(function (stream) {
+        scannerElement.srcObject = stream;
+        scannerElement.setAttribute('playsinline', true);
+        scannerElement.play();
+
+        Quagga.init({
+          inputStream: {
+            name: 'Live',
+            type: 'LiveStream',
+            target: scannerElement,
+            constraints: { facingMode: 'environment' }
+          },
+          decoder: {
+            readers: ['ean_reader', 'code_128_reader', 'upc_reader']
+          }
+        }, function (err) {
+          if (err) {
+            console.error(err);
+            return;
+          }
+          Quagga.start();
+        });
+
+        Quagga.onDetected(async function (result) {
+          const code = result.codeResult.code;
+          Quagga.offDetected();
+
+          resultDiv.innerHTML = `<em>Looking up product info for ${code}…</em>`;
+          resultDiv.classList.remove('hidden');
+
+          try {
+            const resp = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json`);
+            const data = await resp.json();
+
+            let content = '';
+
+            if (data.status !== 1) {
+              content = `
+                <strong>Scanned Code:</strong> ${code}<br/>
+                <span style="color:#c00">No product found.</span><br/>
+              `;
+            } else {
+              const p = data.product;
+              content = `
+                <h3>${p.product_name || 'Unnamed product'}</h3>
+                ${p.image_small_url ? `<img src="${p.image_small_url}" style="max-width:120px">` : ''}
+                <br/><strong>Brand:</strong> ${p.brands || '—'}
+                <br/><strong>Quantity:</strong> ${p.quantity || '—'}
+                <br/><strong>Allergens:</strong> ${p.allergens || '—'}
+                <br/><strong>Expires:</strong> ${p.expiration_date || '—'}
+              `;
+            }
+
+            content += `
+              <br/><a href="https://www.google.com/search?q=${code}" target="_blank" style="color:#1a73e8; text-decoration: underline;">Search on Google</a>
+              <br/><br/>
+              <button class="btn-stop" onclick="startScanning()">Scan another</button>
+              <button class="btn-stop" style="background-color: #0077cc; margin-top:10px;" onclick="window.location.href='convert.html?code=${code}'">Convert to QR</button>
+            `;
+
+            resultDiv.innerHTML = content;
+
+          } catch (e) {
+            console.error(e);
+            resultDiv.innerHTML = `
+              <strong>Scanned Code:</strong> ${code}<br/>
+              <span style="color:#c00">Error fetching product details.</span><br/>
+              <a href="https://www.google.com/search?q=${code}" target="_blank" style="color:#1a73e8; text-decoration: underline;">Search on Google</a>
+              <br/><br/>
+              <button class="btn-stop" onclick="startScanning()">Scan another</button>
+              <button class="btn-stop" style="background-color: #0077cc; margin-top:10px;" onclick="window.location.href='convert.html?code=${code}'">Convert to QR</button>
+            `;
+          }
+        });
+
+      }).catch(function (err) {
+        console.error('Error accessing webcam:', err);
+        resultDiv.innerText = 'Could not access webcam.';
+        resultDiv.classList.remove('hidden');
+      });
+    }
+
+    function stopScanning() {
+      Quagga.stop();
+      scanning = false;
+      stopButton.classList.add('hidden');
+      resultDiv.classList.add('hidden');
+      if (scannerElement.srcObject) {
+        scannerElement.srcObject.getTracks().forEach(track => track.stop());
+      }
+    }
+
+    function manualSearch() {
+      const query = document.getElementById('manualQuery').value.trim();
+      if (query) {
+        const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+        window.open(url, '_blank');
+      }
+    }
+
+    window.onload = function () {
+      startScanning();
+      stopButton.classList.remove('hidden');
+    };
+  </script>
+</body>
+</html>

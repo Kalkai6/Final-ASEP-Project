@@ -1,0 +1,78 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container, .home-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  h1 {
+    color: #2b2b2b;
+    margin-bottom: 20px;
+  }
+  
+  .input-group {
+    margin: 15px 0;
+    text-align: left;
+  }
+  
+  .input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .input-group input, .input-group select {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  
+  .input-group button {
+    margin-top: 10px;
+    margin-left: 5px;
+    padding: 8px 14px;
+    font-size: 14px;
+    border: none;
+    background-color: #28a745;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .input-group button:hover {
+    background-color: #218838;
+  }
+  
+  button, .start-btn, .back-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+  button:hover, .start-btn:hover, .back-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .barcode-output {
+    margin-top: 30px;
+  }
+  

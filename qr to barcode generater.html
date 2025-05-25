@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QR to Barcode Converter</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #e0e7ff, #f4f4f9);
+      padding: 20px;
+      text-align: center;
+      color: #333;
+    }
+
+    h1 {
+      color: #751085;
+      margin-bottom: 30px;
+    }
+
+    #video {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 10px;
+      margin: 10px 0;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+      display: none;
+    }
+
+    canvas {
+      display: none;
+    }
+
+    #output {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    input[type="file"] {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #751085;
+      font-size: 16px;
+    }
+
+    .btn {
+      margin: 20px 5px 0;
+      background-color: #751085;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #5e0a6a;
+    }
+
+    .controls {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>QR to Barcode Converter</h1>
+
+  <video id="video" autoplay></video>
+  <canvas id="canvas"></canvas>
+
+  <div class="controls">
+    <button id="toggleScanBtn" class="btn" onclick="toggleCamera()">Start Live Scan</button>
+    <input type="file" accept="image/*" onchange="handleImageUpload(event)">
+  </div>
+
+  <div id="output"></div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const output = document.getElementById('output');
+    const toggleBtn = document.getElementById('toggleScanBtn');
+
+    let scanning = false;
+    let stream = null;
+
+    async function toggleCamera() {
+      if (!scanning) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+          video.srcObject = stream;
+          video.setAttribute("playsinline", true);
+          video.style.display = "block";
+          scanning = true;
+          toggleBtn.textContent = "Stop Scanning";
+          scanFrame();
+        } catch (err) {
+          output.innerHTML = "<p style='color:red;'>Error accessing camera.</p>";
+          console.error(err);
+        }
+      } else {
+        stopCamera();
+      }
+    }
+
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      video.style.display = "none";
+      scanning = false;
+      toggleBtn.textContent = "Start Live Scan";
+    }
+
+    function scanFrame() {
+      if (!scanning) return;
+
+      requestAnimationFrame(scanFrame);
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+
+      if (code) {
+        stopCamera();
+        displayAndRedirect(code.data);
+      }
+    }
+
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+          if (code) {
+            displayAndRedirect(code.data);
+          } else {
+            output.innerHTML = "<p style='color:red;'>No QR code found in the image.</p>";
+          }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function displayAndRedirect(data) {
+      const encoded = encodeURIComponent(data.trim());
+      output.innerHTML = `
+        <p><strong>QR Content:</strong> ${data}</p>
+        <button class="btn" onclick="window.location.href='convert.html?code=${encoded}'">Convert to Barcode Page</button>
+      `;
+    }
+  </script>
+</body>
+</html>
