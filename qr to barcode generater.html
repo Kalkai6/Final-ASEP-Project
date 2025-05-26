@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>QR to Barcode Converter</title>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -65,6 +66,10 @@
     .controls {
       margin-top: 20px;
     }
+
+    #barcode {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -80,12 +85,14 @@
   </div>
 
   <div id="output"></div>
+  <svg id="barcode"></svg>
 
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const output = document.getElementById('output');
+    const barcode = document.getElementById('barcode');
     const toggleBtn = document.getElementById('toggleScanBtn');
 
     let scanning = false;
@@ -121,6 +128,7 @@
 
     function scanFrame() {
       if (!scanning) return;
+
       requestAnimationFrame(scanFrame);
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
         canvas.width = video.videoWidth;
@@ -131,7 +139,7 @@
 
         if (code) {
           stopCamera();
-          displayAndRedirect(code.data);
+          displayBarcode(code.data);
         }
       }
     }
@@ -151,7 +159,7 @@
           const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
 
           if (code) {
-            displayAndRedirect(code.data);
+            displayBarcode(code.data);
           } else {
             output.innerHTML = "<p style='color:red;'>No QR code found in the image.</p>";
           }
@@ -161,14 +169,16 @@
       reader.readAsDataURL(file);
     }
 
-    function displayAndRedirect(data) {
-      const encoded = encodeURIComponent(data.trim());
-      output.innerHTML = `
-        <p><strong>QR Content:</strong> ${data}</p>
-        <button class="btn" onclick="window.location.href='convert.html?code=${encoded}'">
-          Convert to Barcode Page
-        </button>
-      `;
+    function displayBarcode(data) {
+      const trimmedData = data.trim();
+      output.innerHTML = `<p><strong>QR Content:</strong> ${trimmedData}</p>`;
+      JsBarcode("#barcode", trimmedData, {
+        format: "CODE128",
+        lineColor: "#751085",
+        width: 2,
+        height: 100,
+        displayValue: true
+      });
     }
   </script>
 </body>
