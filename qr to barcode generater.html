@@ -96,7 +96,7 @@
         try {
           stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
           video.srcObject = stream;
-          video.setAttribute("playsinline", true);
+          video.setAttribute("playsinline", true); // For iOS compatibility
           video.style.display = "block";
           scanning = true;
           toggleBtn.textContent = "Stop Scanning";
@@ -121,17 +121,18 @@
 
     function scanFrame() {
       if (!scanning) return;
-
       requestAnimationFrame(scanFrame);
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
 
-      if (code) {
-        stopCamera();
-        displayAndRedirect(code.data);
+        if (code) {
+          stopCamera();
+          displayAndRedirect(code.data);
+        }
       }
     }
 
@@ -147,7 +148,7 @@
           canvas.height = img.height;
           ctx.drawImage(img, 0, 0);
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
 
           if (code) {
             displayAndRedirect(code.data);
@@ -164,7 +165,9 @@
       const encoded = encodeURIComponent(data.trim());
       output.innerHTML = `
         <p><strong>QR Content:</strong> ${data}</p>
-        <button class="btn" onclick="window.location.href='convert.html?code=${encoded}'">Convert to Barcode Page</button>
+        <button class="btn" onclick="window.location.href='convert.html?code=${encoded}'">
+          Convert to Barcode Page
+        </button>
       `;
     }
   </script>
