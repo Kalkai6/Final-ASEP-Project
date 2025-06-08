@@ -5,177 +5,101 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Barcode to QR Code Converter</title>
 
-  <!-- QRCode.js for generating QR codes -->
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- QRCode.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- jsbarcode-reader for barcode decoding from image -->
+  <!-- JsBarcode Reader -->
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode-reader/dist/jsbarcode-reader.min.js"></script>
 
   <style>
-    /* Reset */
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #e3f2fd 0%, #fce4ec 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #fce4ec);
       min-height: 100vh;
-      padding: 60px 20px;
-      margin: 0;
-      color: #0d47a1;
-      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
-
-    h1 {
-      font-weight: 700;
-      font-size: 2.5rem;
-      margin-bottom: 30px;
-      text-shadow: 0 2px 5px rgba(13, 71, 161, 0.2);
+    .card {
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
-
-    input[type="text"] {
-      width: 320px;
-      max-width: 90vw;
-      padding: 14px 18px;
-      font-size: 1.1rem;
-      border: 2.5px solid #90caf9;
-      border-radius: 12px;
-      outline-offset: 4px;
-      outline-color: #64b5f6;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: inset 1px 1px 5px #bbdefb;
-      color: #1a237e;
-    }
-
-    input[type="file"] {
-      margin-top: 25px;
-      border-radius: 12px;
-      cursor: pointer;
-      padding: 8px;
-      font-size: 1rem;
-      border: 2px solid #90caf9;
-      background: white;
-      color: #0d47a1;
-      user-select: none;
-      transition: border-color 0.3s ease;
-      max-width: 320px;
-      width: 90vw;
-    }
-    input[type="file"]:hover {
+    .form-control:focus {
       border-color: #3949ab;
+      box-shadow: 0 0 0 0.2rem rgba(57, 73, 171, 0.25);
     }
-
-    button {
-      margin-top: 20px;
-      padding: 14px 36px;
-      font-size: 1.15rem;
+    .btn-primary {
       background-color: #3949ab;
-      color: white;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      box-shadow: 0 6px 14px rgba(57, 73, 171, 0.5);
-      transition: background-color 0.35s ease, transform 0.15s ease;
-      user-select: none;
-    }
-
-    button:hover,
-    button:focus {
-      background-color: #283593;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(40, 53, 147, 0.7);
-      outline: none;
-    }
-
-    button:active {
-      transform: translateY(0);
-      box-shadow: 0 4px 10px rgba(40, 53, 147, 0.5);
-    }
-
-    #qrcode {
-      margin-top: 40px;
-      padding: 25px;
-      background: white;
-      border-radius: 18px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
-      display: inline-block;
-      user-select: text;
-      transition: transform 0.3s ease;
-      min-width: 240px;
-      min-height: 240px;
-    }
-
-    #qrcode:hover {
-      transform: scale(1.05);
-    }
-
-    #status {
-      margin-top: 18px;
-      font-size: 1rem;
-      color: #3949ab;
-      min-height: 1.2em;
+      border-color: #3949ab;
       font-weight: 600;
-      text-align: center;
-      max-width: 320px;
-      word-break: break-word;
+      border-radius: 12px;
     }
-
-    /* Responsive tweaks */
-    @media (max-width: 400px) {
-      h1 {
-        font-size: 2rem;
-      }
-      input[type="text"],
-      input[type="file"] {
-        width: 100%;
-      }
-      button {
-        width: 100%;
-        padding: 14px 0;
-      }
-      #qrcode {
-        width: 80vw !important;
-        height: 80vw !important;
-      }
+    .btn-primary:hover {
+      background-color: #283593;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+    .alert {
+      font-size: 0.95rem;
     }
   </style>
 </head>
 <body>
-  <h1>Barcode to QR Code Converter</h1>
+  <div class="container">
+    <div class="card p-4 mx-auto" style="max-width: 500px;">
+      <h2 class="text-center text-primary mb-4">Barcode to QR Code Converter</h2>
 
-  <!-- Manual input -->
-  <input type="text" id="barcodeInput" placeholder="Enter barcode number or text" aria-label="Barcode or text input" />
+      <!-- Status Message -->
+      <div id="status" class="alert alert-info d-none" role="alert"></div>
 
-  <!-- File input for barcode image -->
-  <input type="file" id="barcodeImageInput" accept="image/*" aria-label="Upload barcode image" />
+      <!-- Input Fields -->
+      <div class="mb-3">
+        <label for="barcodeInput" class="form-label">Enter Barcode or Text</label>
+        <input type="text" id="barcodeInput" class="form-control" placeholder="e.g., 8901234567890">
+      </div>
 
-  <button id="convertBtn" aria-label="Convert to QR code">Convert to QR Code</button>
+      <div class="mb-3">
+        <label for="barcodeImageInput" class="form-label">Upload Barcode Image</label>
+        <input type="file" id="barcodeImageInput" class="form-control" accept="image/*">
+      </div>
 
-  <div id="status" aria-live="polite"></div>
+      <div class="d-grid mb-3">
+        <button id="convertBtn" class="btn btn-primary">Convert to QR Code</button>
+      </div>
 
-  <div id="qrcode" aria-live="polite" aria-atomic="true"></div>
+      <!-- QR Output -->
+      <div class="text-center">
+        <div id="qrcode"></div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Script Logic -->
   <script>
-    const barcodeInput = document.getElementById('barcodeInput');
-    const barcodeImageInput = document.getElementById('barcodeImageInput');
-    const convertBtn = document.getElementById('convertBtn');
-    const qrContainer = document.getElementById('qrcode');
-    const statusDiv = document.getElementById('status');
+    const $status = $('#status');
+    const $barcodeInput = $('#barcodeInput');
+    const $barcodeImageInput = $('#barcodeImageInput');
+    const $qrcode = $('#qrcode');
 
-    // Clear QR and status
     function clearOutputs() {
-      qrContainer.innerHTML = '';
-      statusDiv.textContent = '';
+      $qrcode.empty();
+      $status.addClass('d-none').removeClass('alert-success alert-danger alert-info').text('');
     }
 
-    // Generate QR code from string
+    function showStatus(message, type = 'info') {
+      $status.removeClass('d-none').removeClass('alert-success alert-danger alert-info').addClass('alert-' + type).text(message);
+    }
+
     function generateQRCode(text) {
-      qrContainer.innerHTML = ''; // clear old
-      new QRCode(qrContainer, {
+      $qrcode.empty();
+      new QRCode(document.getElementById("qrcode"), {
         text: text,
         width: 240,
         height: 240,
@@ -185,52 +109,36 @@
       });
     }
 
-    // When convert button clicked
-    convertBtn.addEventListener('click', () => {
+    $('#convertBtn').click(() => {
       clearOutputs();
-
-      const manualInput = barcodeInput.value.trim();
-
-      if (manualInput !== '') {
-        generateQRCode(manualInput);
-        statusDiv.textContent = "QR code generated from manual input.";
-        return;
+      const input = $barcodeInput.val().trim();
+      if (input) {
+        generateQRCode(input);
+        showStatus("✅ QR code generated from manual input.", 'success');
+      } else {
+        showStatus("⚠️ Please enter text or upload a barcode image.", 'warning');
       }
-
-      statusDiv.textContent = "Please enter barcode text or upload an image.";
     });
 
-    // On file upload
-    barcodeImageInput.addEventListener('change', () => {
+    $barcodeImageInput.on('change', () => {
       clearOutputs();
+      const file = $barcodeImageInput[0].files[0];
+      if (!file) return showStatus("⚠️ No file selected.", 'warning');
+      if (!file.type.startsWith('image/')) return showStatus("❌ Please upload a valid image file.", 'danger');
 
-      const file = barcodeImageInput.files[0];
-      if (!file) {
-        statusDiv.textContent = "No file selected.";
-        return;
-      }
-
-      if (!file.type.startsWith('image/')) {
-        statusDiv.textContent = "Please upload a valid image file.";
-        return;
-      }
-
-      statusDiv.textContent = "Decoding barcode from image...";
+      showStatus("⏳ Decoding barcode from image...", 'info');
 
       const reader = new FileReader();
-      reader.onload = function(e) {
-        const imageDataUrl = e.target.result;
-
-        // Use jsbarcode-reader to decode barcode from image
-        JsBarcodeReader.readFromImage(imageDataUrl)
+      reader.onload = function (e) {
+        JsBarcodeReader.readFromImage(e.target.result)
           .then(result => {
-            statusDiv.textContent = "Barcode decoded: " + result;
-            barcodeInput.value = result;
+            $barcodeInput.val(result);
             generateQRCode(result);
+            showStatus("✅ Barcode decoded and QR code generated.", 'success');
           })
           .catch(err => {
             console.error(err);
-            statusDiv.textContent = "Failed to decode barcode. Try another image or enter manually.";
+            showStatus("❌ Failed to decode barcode. Try another image or enter manually.", 'danger');
           });
       };
       reader.readAsDataURL(file);
