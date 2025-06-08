@@ -2,34 +2,169 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ASEP Barcode Generator</title>
-  <link rel="stylesheet" href="style.css">
+  <title>ASEP QBar Fusion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f4f7fc;
+      margin: 0;
+      padding-top: 40px;
+    }
+
+    .main-title {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .main-title h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #003366;
+    }
+
+    .main-title p {
+      font-size: 1.1rem;
+      color: #666;
+    }
+
+    .section-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+      padding: 30px 20px;
+      margin-bottom: 30px;
+      text-align: center;
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+
+    .section-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .section-card h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #003366;
+      margin-top: 15px;
+    }
+
+    .section-card p {
+      font-size: 0.95rem;
+      color: #555;
+      margin: 10px 0 20px;
+    }
+
+    .start-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      font-weight: 500;
+      font-size: 1rem;
+      color: #fff;
+      background-color: #003366;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .start-btn:hover {
+      background-color: #002244;
+    }
+
+    .icon-circle {
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      background-color: #e6f0ff;
+      border-radius: 50%;
+      display: inline-block;
+      font-size: 24px;
+      color: #003366;
+    }
+
+    @media (max-width: 767.98px) {
+      .main-title h1 {
+        font-size: 2rem;
+      }
+      .section-card h1 {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="home-container">
-    <h1>ASEP Barcode Scanner</h1>
-    <p>Scan barcodes instantly to retrieve product details on the spot.</p>
-    <a href="check.html" class="start-btn">Start Scanning</a>
+
+  <div class="container">
+    <div class="main-title">
+      <h1>ASEP QBar Fusion</h1>
+      <p class="text-muted">Scan • Generate • Convert Barcodes & QR Codes</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="section-card h-100">
+          <div class="icon-circle"><i class="fas fa-barcode"></i></div>
+          <h1>Barcode Scanner</h1>
+          <p>Scan barcodes instantly to retrieve product details on the spot.</p>
+          <a href="check.html" class="start-btn">Start Scanning</a>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="section-card h-100">
+          <div class="icon-circle"><i class="fas fa-cogs"></i></div>
+          <h1>Barcode Generator</h1>
+          <p>Create barcodes for various product types quickly and easily.</p>
+          <a href="generate.html" class="start-btn">Start Generating</a>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="section-card h-100">
+          <div class="icon-circle"><i class="fas fa-qrcode"></i></div>
+          <h1>QR Scanner</h1>
+          <p>Scan QR codes instantly to retrieve product details on the spot.</p>
+          <a href="QR.html" class="start-btn">Start Scanning</a>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-6">
+        <div class="section-card h-100">
+          <div class="icon-circle"><i class="fas fa-exchange-alt"></i></div>
+          <h1>QR to Barcode Converter</h1>
+          <p>Convert QR codes into barcodes for easier reading by scanners.</p>
+          <a href="qr to barcode generater.html" class="start-btn">Start Conversion</a>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-6">
+        <div class="section-card h-100">
+          <div class="icon-circle"><i class="fas fa-sync-alt"></i></div>
+          <h1>Barcode to QR Converter</h1>
+          <p>Turn barcodes into QR codes for better compatibility and sharing.</p>
+          <a href="convert barcode to qr.html" class="start-btn">Start Conversion</a>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="home-container">
-    <h1>ASEP Barcode Generator</h1>
-    <p>Create barcodes for various product types quickly and easily.</p>
-    <a href="generate.html" class="start-btn">Start Generating</a>
-  </div>
-  <div class="home-container">
-    <h1>ASEP QR Scanner</h1>
-    <p>Scan barcodes instantly to retrieve product details on the spot.</p>
-    <a href="QR.html" class="start-btn">Start Generating</a>
-  </div>
-  <div class="home-container">
-    <h1>ASEP QR to Barcode Converter</h1>
-    <p>Create Barcodes from QR for easy Reading.</p>
-    <a href="qr to barcode generater.html" class="start-btn">Start Generating</a>
-  </div>
-  <div class="home-container">
-    <h1>ASEP Barcode to QR Converter</h1>
-    <p>Create QR from Barcodes for easy Reading.</p>
-    <a href="convert barcode to qr.html" class="start-btn">Start Generating</a>
-  </div>
+
 </body>
 </html>
