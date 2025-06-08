@@ -3,116 +3,179 @@
 <head>
   <meta charset="UTF-8" />
   <title>Generate Barcode - ASEP</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
   <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to right, #eef1f6, #f6f9fc);
+      margin: 0;
+      padding-top: 70px;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      color: #0d6efd !important;
+    }
+
+    .container {
+      max-width: 700px;
+    }
+
+    .card {
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      padding: 40px;
+      background-color: #ffffff;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: bold;
+      margin-bottom: 25px;
+      text-align: center;
+      color: #0d6efd;
+    }
+
+    label {
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
     .barcode-output svg {
-      width: 300px;
+      width: 100%;
+      max-width: 300px;
       height: 100px;
-      border: 1px solid #ddd;
       display: block;
+      margin: 20px auto;
+      border: 1px solid #dee2e6;
+      background-color: #ffffff;
+    }
+
+    .btn-primary, .btn-secondary {
+      width: 100%;
+      border-radius: 30px;
+      font-weight: 500;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      border: none;
+    }
+
+    .btn-group {
       margin-top: 20px;
     }
-    .container {
-      max-width: 400px;
-      margin: 20px auto;
-      font-family: Arial, sans-serif;
+
+    .footer-link {
+      text-align: center;
+      margin-top: 30px;
+      font-weight: 500;
     }
-    .input-group {
-      margin-bottom: 12px;
+
+    .footer-link a {
+      text-decoration: none;
+      color: #0d6efd;
     }
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 4px;
+
+    .footer-link a:hover {
+      text-decoration: underline;
     }
-    input[type="text"],
-    input[type="date"],
-    select,
-    textarea {
-      width: 100%;
-      padding: 6px;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-    textarea {
-      resize: vertical;
-      height: 60px;
-    }
-    button {
-      margin-right: 8px;
-      padding: 8px 12px;
-      font-size: 14px;
+
+    select {
       cursor: pointer;
     }
-    .back-btn {
-      display: inline-block;
-      margin-top: 20px;
-      text-decoration: none;
-      color: #333;
-      font-weight: bold;
+
+    textarea:disabled, input:disabled {
+      background-color: #f8f9fa;
+    }
+
+    .badge-category {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #fff;
+      background-color: #0d6efd;
+      padding: 3px 10px;
+      border-radius: 12px;
     }
   </style>
 </head>
 <body>
+  <nav class="navbar fixed-top navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand" href="#">ASEP Barcode Generator</a>
+    </div>
+  </nav>
+
   <div class="container">
-    <h1>Generate a Product Barcode</h1>
+    <div class="card mt-4">
+      <h1>Generate Product Barcode</h1>
 
-    <div class="input-group">
-      <label for="productName">Product Name:</label>
-      <input type="text" id="productName" placeholder="e.g., Toothpaste" />
+      <div class="mb-3">
+        <label for="productName">Product Name</label>
+        <input type="text" id="productName" class="form-control" placeholder="e.g., Toothpaste" />
+      </div>
+
+      <div class="mb-3">
+        <label for="category">Category</label>
+        <select id="category" class="form-select" onchange="updateWarnings()">
+          <option>Food</option>
+          <option>Medical</option>
+          <option>Appliances</option>
+          <option>Electronics</option>
+          <option>Books</option>
+          <option>Cosmetics</option>
+          <option>Stationery</option>
+          <option>Tools</option>
+          <option>Clothing</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="productCode">Product Code (7 digits)</label>
+        <div class="input-group">
+          <input type="text" id="productCode" class="form-control" placeholder="e.g., 1234567" />
+          <button class="btn btn-outline-primary" type="button" onclick="generateRandomCode()">Generate</button>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="mfgDate">Manufacturing Date</label>
+        <input type="date" id="mfgDate" class="form-control" />
+      </div>
+
+      <div class="mb-3">
+        <label for="expiryDate">Expiry Date</label>
+        <input type="text" id="expiryDate" class="form-control" disabled />
+      </div>
+
+      <div class="mb-3">
+        <label for="warningMessage">Warning</label>
+        <textarea id="warningMessage" class="form-control" rows="2" disabled></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="finalBarcode">Generated Barcode Number (13-digit)</label>
+        <input type="text" id="finalBarcode" class="form-control" readonly />
+      </div>
+
+      <div class="btn-group d-grid gap-2">
+        <button class="btn btn-primary" onclick="generateBarcode()">Generate Barcode</button>
+        <button class="btn btn-secondary" onclick="downloadBarcodeImage()">Download Barcode Image</button>
+      </div>
+
+      <div class="barcode-output">
+        <svg id="barcode"></svg>
+      </div>
+
+      <div class="footer-link">
+        <a href="index.html">← Back to Home</a>
+      </div>
     </div>
-
-    <div class="input-group">
-      <label for="category">Category:</label>
-      <select id="category" onchange="updateWarnings()">
-        <option>Food</option>
-        <option>Medical</option>
-        <option>Appliances</option>
-        <option>Electronics</option>
-        <option>Books</option>
-        <option>Cosmetics</option>
-        <option>Stationery</option>
-        <option>Tools</option>
-        <option>Clothing</option>
-        <option>Other</option>
-      </select>
-    </div>
-
-    <div class="input-group">
-      <label for="productCode">Product Code (7 digits):</label>
-      <input type="text" id="productCode" placeholder="e.g., 1234567" />
-      <button type="button" onclick="generateRandomCode()">Generate Random Code</button>
-    </div>
-
-    <div class="input-group">
-      <label for="mfgDate">Manufacturing Date:</label>
-      <input type="date" id="mfgDate" />
-    </div>
-
-    <div class="input-group">
-      <label for="expiryDate">Expiry Date (auto-calculated):</label>
-      <input type="text" id="expiryDate" disabled />
-    </div>
-
-    <div class="input-group">
-      <label for="warningMessage">Warning:</label>
-      <textarea id="warningMessage" disabled></textarea>
-    </div>
-
-    <div class="input-group">
-      <label for="finalBarcode">Generated Barcode Number (13-digit):</label>
-      <input type="text" id="finalBarcode" readonly />
-    </div>
-
-    <button onclick="generateBarcode()">Generate Barcode</button>
-    <button onclick="downloadBarcodeImage()">Download Barcode Image</button>
-
-    <div class="barcode-output">
-      <svg id="barcode"></svg>
-    </div>
-
-    <a href="index.html" class="back-btn">← Back to Home</a>
   </div>
 
   <script>
@@ -137,21 +200,20 @@
       const mfgDate = document.getElementById("mfgDate").value;
 
       if (!name || !mfgDate || productCode.length !== 7 || !/^\d{7}$/.test(productCode)) {
-        alert("Please enter all required fields and ensure product code is exactly 7 digits (numbers only).");
+        alert("Please enter all required fields and ensure product code is exactly 7 digits.");
         return;
       }
 
       const prefix = "890";
-      const random2 = Math.floor(Math.random() * 90 + 10).toString(); // 2-digit suffix
-      const baseCode = prefix + productCode + random2; // 12-digit
-
+      const random2 = Math.floor(Math.random() * 90 + 10).toString();
+      const baseCode = prefix + productCode + random2;
       const checkDigit = calculateEAN13CheckDigit(baseCode);
-      const fullCode = baseCode + checkDigit; // 13-digit EAN
+      const fullCode = baseCode + checkDigit;
 
       document.getElementById("finalBarcode").value = fullCode;
 
       const barcodeSvg = document.getElementById("barcode");
-      barcodeSvg.innerHTML = ""; // clear old
+      barcodeSvg.innerHTML = "";
 
       JsBarcode(barcodeSvg, fullCode, {
         format: "EAN13",
