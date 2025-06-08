@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Converted Barcode - ASEP</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <!-- JsBarcode -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #fffafc, #f4e9ff);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .barcode-card {
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      color: #751085;
+      font-weight: 600;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+    }
+
+    #barcode {
+      margin: 20px auto;
+    }
+
+    .btn-back {
+      background-color: #751085;
+      color: white;
+      padding: 10px 24px;
+      border: none;
+      border-radius: 25px;
+      font-weight: 500;
+      margin-top: 20px;
+      transition: background-color 0.3s;
+    }
+
+    .btn-back:hover {
+      background-color: #5e0a6a;
+    }
+
+    .output-text {
+      font-size: 1rem;
+      color: #333;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="barcode-card">
+    <h1>Converted Barcode</h1>
+    <p class="output-text" id="textOutput">Loading...</p>
+    <svg id="barcode"></svg>
+    <button class="btn btn-back mt-3" onclick="window.location.href='index.html'">← Back to QR Scanner</button>
+  </div>
+
+  <script>
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    const code = getQueryParam("code");
+    const textOutput = document.getElementById("textOutput");
+    const barcode = document.getElementById("barcode");
+
+    if (code) {
+      const decoded = decodeURIComponent(code.trim());
+      textOutput.textContent = `Scanned Data: ${decoded}`;
+      JsBarcode("#barcode", decoded, {
+        format: "CODE128",
+        lineColor: "#751085",
+        width: 2,
+        height: 100,
+        displayValue: true
+      });
+    } else {
+      textOutput.innerHTML = "<span style='color:red;'>❌ No QR data found in URL.</span>";
+    }
+  </script>
+</body>
+</html>
