@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Converted Barcode</title>
+  <title>Scan & Convert to Barcode</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
   <!-- JsBarcode -->
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-
+  <!-- QuaggaJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
@@ -33,7 +32,7 @@
       border-radius: 15px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       padding: 30px;
-      max-width: 500px;
+      max-width: 520px;
       width: 100%;
       text-align: center;
     }
@@ -52,6 +51,7 @@
       font-size: 16px;
       border-radius: 8px;
       transition: background-color 0.3s;
+      margin: 5px;
     }
 
     .btn-custom:hover {
@@ -66,38 +66,125 @@
     #barcode {
       margin: 20px 0;
     }
+
+    #scanner-container {
+      width: 100%;
+      max-height: 300px;
+      overflow: hidden;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    #scanner {
+      width: 100%;
+    }
+
+    .alert {
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
 
   <div class="barcode-card">
-    <h1>Converted Barcode</h1>
+    <h1>Scan & Convert to Barcode</h1>
+
+    <div id="scanner-container">
+      <div id="scanner"></div>
+    </div>
+
+    <div id="status" class="alert alert-info d-none"></div>
+
     <p id="textOutput"></p>
     <svg id="barcode"></svg>
-    <button class="btn btn-custom mt-3" onclick="window.location.href='index.html'">Back to QR Scanner</button>
+
+    <button class="btn btn-custom" id="downloadBtn" style="display: none;">Download Barcode</button>
+    <button class="btn btn-custom mt-2" onclick="window.location.reload()">Scan Again</button>
   </div>
 
   <script>
-    function getQueryParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
+    const $status = $('#status');
+    const $textOutput = $('#textOutput');
+    const $barcode = $('#barcode');
+    const $downloadBtn = $('#downloadBtn');
+
+    function showStatus(msg, type = 'info') {
+      $status.removeClass('d-none alert-info alert-success alert-danger')
+             .addClass('alert-' + type)
+             .text(msg);
     }
 
-    const code = getQueryParam("code");
-
-    if (code) {
-      const decoded = decodeURIComponent(code.trim());
-      $('#textOutput').text(`Scanned Data: ${decoded}`);
-      JsBarcode("#barcode", decoded, {
+    function showBarcode(text) {
+      $textOutput.text(`Scanned Data: ${text}`);
+      JsBarcode("#barcode", text, {
         format: "CODE128",
         lineColor: "#751085",
         width: 2,
         height: 100,
         displayValue: true
       });
-    } else {
-      $('#textOutput').html("<span class='text-danger'>No QR data found in URL.</span>");
+      $downloadBtn.show();
     }
+
+    function downloadSVGAsPNG() {
+      const svg = document.querySelector("#barcode");
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const img = new Image();
+      img.onload = function () {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        const pngFile = canvas.toDataURL("image/png");
+
+        const downloadLink = document.createElement("a");
+        downloadLink.download = "barcode.png";
+        downloadLink.href = pngFile;
+        downloadLink.click();
+      };
+
+      img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+    }
+
+    $downloadBtn.on('click', downloadSVGAsPNG);
+
+    function startScanner() {
+      showStatus("📷 Starting camera. Point barcode at the screen...");
+
+      Quagga.init({
+        inputStream: {
+          name: "Live",
+          type: "LiveStream",
+          target: document.querySelector('#scanner'),
+          constraints: {
+            facingMode: "environment"
+          }
+        },
+        decoder: {
+          readers: ["code_128_reader", "ean_reader", "ean_8_reader", "upc_reader"]
+        }
+      }, function(err) {
+        if (err) {
+          console.error(err);
+          showStatus("❌ Camera initialization failed.", "danger");
+          return;
+        }
+        Quagga.start();
+      });
+
+      Quagga.onDetected(function(result) {
+        const code = result.codeResult.code;
+        Quagga.stop();
+        showStatus("✅ Barcode scanned successfully!", "success");
+        showBarcode(code);
+      });
+    }
+
+    $(document).ready(() => {
+      startScanner();
+    });
   </script>
 
 </body>
