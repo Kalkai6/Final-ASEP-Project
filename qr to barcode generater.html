@@ -3,16 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scan & Convert to Barcode</title>
+  <title>QR to Barcode Converter</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <!-- JsBarcode -->
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-  <!-- QuaggaJS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+
+  <!-- QR Scanner Library -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
@@ -58,48 +62,36 @@
       background-color: #5e0a6a;
     }
 
-    #textOutput {
-      font-size: 18px;
-      margin-bottom: 20px;
+    #scanner {
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
     }
 
     #barcode {
       margin: 20px 0;
-    }
-
-    #scanner-container {
-      width: 100%;
-      max-height: 300px;
-      overflow: hidden;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-
-    #scanner {
-      width: 100%;
-    }
-
-    .alert {
-      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
 
   <div class="barcode-card">
-    <h1>Scan & Convert to Barcode</h1>
+    <h1>QR to Barcode Converter</h1>
 
-    <div id="scanner-container">
-      <div id="scanner"></div>
-    </div>
+    <div id="scanner"></div>
 
-    <div id="status" class="alert alert-info d-none"></div>
+    <div id="status" class="alert alert-info mt-3 d-none"></div>
 
-    <p id="textOutput"></p>
+    <p id="textOutput" class="mt-3"></p>
     <svg id="barcode"></svg>
 
-    <button class="btn btn-custom" id="downloadBtn" style="display: none;">Download Barcode</button>
-    <button class="btn btn-custom mt-2" onclick="window.location.reload()">Scan Again</button>
+    <button class="btn btn-custom" id="downloadBtn" style="display: none;">
+      Download Barcode
+    </button>
+
+    <button class="btn btn-custom mt-2" onclick="window.location.reload()">
+      Scan Again
+    </button>
   </div>
 
   <script>
@@ -116,6 +108,7 @@
 
     function showBarcode(text) {
       $textOutput.text(`Scanned Data: ${text}`);
+
       JsBarcode("#barcode", text, {
         format: "CODE128",
         lineColor: "#751085",
@@ -123,6 +116,7 @@
         height: 100,
         displayValue: true
       });
+
       $downloadBtn.show();
     }
 
@@ -137,6 +131,7 @@
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
+
         const pngFile = canvas.toDataURL("image/png");
 
         const downloadLink = document.createElement("a");
@@ -151,34 +146,26 @@
     $downloadBtn.on('click', downloadSVGAsPNG);
 
     function startScanner() {
-      showStatus("📷 Starting camera. Point barcode at the screen...");
+      showStatus("📷 Starting QR scanner...");
 
-      Quagga.init({
-        inputStream: {
-          name: "Live",
-          type: "LiveStream",
-          target: document.querySelector('#scanner'),
-          constraints: {
-            facingMode: "environment"
-          }
+      const qrScanner = new Html5Qrcode("scanner");
+
+      qrScanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: 250
         },
-        decoder: {
-          readers: ["code_128_reader", "ean_reader", "ean_8_reader", "upc_reader"]
+        (decodedText) => {
+          qrScanner.stop();
+          showStatus("✅ QR scanned successfully!", "success");
+          showBarcode(decodedText);
+        },
+        (errorMessage) => {
+          // ignore small scan errors
         }
-      }, function(err) {
-        if (err) {
-          console.error(err);
-          showStatus("❌ Camera initialization failed.", "danger");
-          return;
-        }
-        Quagga.start();
-      });
-
-      Quagga.onDetected(function(result) {
-        const code = result.codeResult.code;
-        Quagga.stop();
-        showStatus("✅ Barcode scanned successfully!", "success");
-        showBarcode(code);
+      ).catch(err => {
+        showStatus("❌ Camera initialization failed. Run on localhost or HTTPS.", "danger");
       });
     }
 
